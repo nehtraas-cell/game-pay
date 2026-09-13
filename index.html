@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Game Pay</title>
+<style>
+body{font-family:Arial;margin:0;background:#f3f6fb;color:#172033}header{background:#111827;color:white;text-align:center;padding:24px}
+.card{max-width:700px;margin:18px auto;padding:24px;background:white;border-radius:20px;box-shadow:0 6px 20px #0001}
+.warning{max-width:660px;margin:20px auto;padding:16px;border:2px solid #f97316;background:#fff7ed;color:#9a3412;border-radius:15px}
+.balance{font-size:40px;font-weight:bold}.page{display:none}.active{display:block}
+button{padding:14px 20px;border:0;border-radius:12px;font-size:17px;font-weight:bold;cursor:pointer;margin:5px}
+.work{width:100%;background:#16a34a;color:white;padding:22px;font-size:21px}
+.primary{background:#2563eb;color:white}.secondary{background:#e2e8f0}
+input{width:100%;padding:14px;border:1px solid #bbb;border-radius:10px;margin:8px 0 16px;font-size:16px;box-sizing:border-box}
+.big{text-align:center;font-size:65px}.success{text-align:center;color:#07815b}.fail{text-align:center;color:#b91c1c}
+</style></head><body>
+<header><h1>🎮 Game Pay</h1><p>Virtual game currency only</p></header>
+
+<div id="home" class="page active">
+<div class="warning"><b>⚠️ IMPORTANT:</b> Game Pay is NOT a real payment app. It uses no real money, bank cards, or real transactions. It is only for a game.</div>
+<div class="card"><p>GAME COINS</p><div class="balance" id="balance">500 GP</div>
+<p>Press and hold for 2 seconds to work and earn 100 GP.</p>
+<button class="work" id="work">🔨 PRESS & HOLD TO WORK</button></div>
+<div class="card"><h2>💳 Pay a Shop</h2><p>Enter the shop's name.</p>
+<input id="shop" placeholder="Example: Pixel Shop"><button class="primary" onclick="paymentPage()">Continue to Payment →</button></div>
+</div>
+
+<div id="pay" class="page"><div class="warning"><b>🎮 PRETEND PAYMENT</b><br>No real money is used.</div>
+<div class="card"><h2>Pay <span id="shopOut"></span></h2><p>Balance: <b id="payBalance"></b></p>
+<input id="amount" type="number" min="1" placeholder="Game coins to pay">
+<button class="primary" onclick="pay()">🔊 PAY NOW</button><button class="secondary" onclick="home()">Back</button>
+<p id="err"></p></div></div>
+
+<div id="result" class="page"><div class="card">
+<div id="icon" class="big">✅</div><h1 id="title" class="success">Payment Successful!</h1>
+<p id="text" style="text-align:center"></p><div style="text-align:center"><button class="primary" onclick="home()">← Back to Game Pay</button></div>
+</div></div>
+
+<script>
+let coins=500,working=false,timer;
+function update(){balance.textContent=coins+' GP';payBalance.textContent=coins+' GP'}
+function start(){if(working)return;working=true;timer=setTimeout(()=>{coins+=100;working=false;update();alert('🎉 You earned 100 GP!')},2000)}
+function stop(){if(working){clearTimeout(timer);working=false}}
+work.onpointerdown=e=>{e.preventDefault();start()};work.onpointerup=stop;work.onpointerleave=stop;work.onpointercancel=stop;
+function show(x){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(x).classList.add('active')}
+function paymentPage(){let s=shop.value.trim();if(!s){alert('Please enter the shop name first!');return}shopOut.textContent=s;update();show('pay')}
+function beep(){let A=AudioContext||webkitAudioContext;if(!A)return;let c=new A(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.12;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}
+function pay(){let a=Number(amount.value),s=shop.value.trim();if(!a||a<1){err.textContent='Enter a valid amount.';return}err.textContent='';
+if(a>coins){icon.textContent='❌';title.textContent='Payment Unsuccessful';title.className='fail';text.textContent='You do not have enough Game Points to pay '+s+'.'}
+else{coins-=a;update();beep();icon.textContent='✅';title.textContent='Payment Successful!';title.className='success';text.textContent=a+' GP was paid to '+s+'. This was only a pretend game payment.'}show('result')}
+function home(){update();show('home')}update();
+</script></body></html>
